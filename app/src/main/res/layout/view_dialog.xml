@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="@dimen/dialog_item_min_height"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:text="@string/word_size" />
+
+        <RadioGroup
+            android:id="@+id/rg_size"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/rb_small"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/small" />
+
+            <RadioButton
+                android:id="@+id/rb_middle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:text="@string/middle" />
+
+            <RadioButton
+                android:id="@+id/rb_big"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/big" />
+        </RadioGroup>
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="@dimen/dialog_item_min_height">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:text="@string/background" />
+
+        <RadioGroup
+            android:id="@+id/rg_bg"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/rb_c1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/selector_bg_article1"
+                android:button="@null"
+                android:checked="true" />
+
+            <Space
+                android:layout_width="@dimen/article_bg_thumb_space"
+                android:layout_height="0dp" />
+
+            <RadioButton
+                android:id="@+id/rb_c2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/selector_bg_article2"
+                android:button="@null" />
+
+            <Space
+                android:layout_width="@dimen/article_bg_thumb_space"
+                android:layout_height="0dp" />
+
+            <RadioButton
+                android:id="@+id/rb_c3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/selector_bg_article3"
+                android:button="@null" />
+
+            <Space
+                android:layout_width="@dimen/article_bg_thumb_space"
+                android:layout_height="0dp" />
+
+            <RadioButton
+                android:id="@+id/rb_c4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/selector_bg_article4"
+                android:button="@null" />
+        </RadioGroup>
+    </RelativeLayout>
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="@dimen/dialog_item_min_height"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:text="@string/night" />
+
+        <Switch
+            android:id="@+id/switcher"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true" />
+
+    </RelativeLayout>
+</LinearLayout>

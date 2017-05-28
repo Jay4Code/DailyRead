@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorAccent">#FF4081</color>
+
+    <color name="bg_title">#e2caa4</color>
+
+    <color name="bg_article1">#efede1</color>
+    <color name="bg_article2">#c6eecb</color>
+    <color name="bg_article3">#273349</color>
+    <color name="bg_article4">#090d10</color>
+    <array name="bg_articles">
+        <item>@color/bg_article1</item>
+        <item>@color/bg_article2</item>
+        <item>@color/bg_article3</item>
+        <item>@color/bg_article4</item>
+    </array>
+
+    <color name="light_white">#efede1</color>
+    <color name="white">#ffffff</color>
+    <color name="black">#000000</color>
+</resources>

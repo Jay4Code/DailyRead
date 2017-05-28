@@ -1,0 +1,28 @@
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">DailyRead</string>
+    <string name="author_email">jiexiaochn@163.com</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="words">全文完　共<xliff:g id="wc">%1d</xliff:g>字</string>
+
+    <string name="word_size">字号</string>
+    <string name="background">背景</string>
+    <string name="night">夜间</string>
+
+    <string name="small">小</string>
+    <string name="middle">中</string>
+    <string name="big">大</string>
+
+    <string name="read_settings">阅读设置</string>
+    <string name="prev">前一天</string>
+    <string name="random">随机</string>
+    <string name="next">后一天</string>
+    <string name="today">今日</string>
+
+    <string name="net_busy">网络忙，请稍后</string>
+    <string name="encrypt_error">加密异常</string>
+    <string name="decrypt_error">解密异常</string>
+
+</resources>
