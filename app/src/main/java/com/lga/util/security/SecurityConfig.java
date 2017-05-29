@@ -1,4 +1,4 @@
-package com.lga.security;
+package com.lga.util.security;
 
 /**
  * Created by Jay on 2017/5/27.

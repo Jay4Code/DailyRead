@@ -28,22 +28,18 @@ import android.widget.Switch;
 import android.widget.TextView;
 
 import com.alibaba.fastjson.JSON;
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.Volley;
-import com.lga.cache.CacheConfig;
-import com.lga.cache.CacheUtil;
-import com.lga.security.AESEncryptor;
-import com.lga.security.SecurityConfig;
+import com.lga.util.cache.CacheConfig;
+import com.lga.util.cache.CacheUtil;
+import com.lga.util.date.DateUtil;
+import com.lga.util.net.NetListener;
+import com.lga.util.net.NetUtil;
+import com.lga.util.security.AESEncryptor;
+import com.lga.util.security.SecurityConfig;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
+import static com.lga.util.date.DateUtil.getFormatDate;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, RadioGroup.OnCheckedChangeListener, CompoundButton.OnCheckedChangeListener {
@@ -69,7 +65,7 @@ public class MainActivity extends AppCompatActivity
     private int mArticleSizeIndex;
     private int mBgColorIndex;
 
-    private RequestQueue mQueue;
+    private NetUtil mNetUtil;
 
     private ViewGroup mLayoutArticle;
     private NavigationView mNavigationView;
@@ -102,6 +98,74 @@ public class MainActivity extends AppCompatActivity
 
         preprocess();
 
+        initView();
+
+        loadData(mCurrUrl);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        // save data
+        SharedPreferences.Editor editor = mPreferences.edit();
+        if (mArticle != null) {
+            if (mCurrUrl.contains(ArticleApi.RANDOM)) {
+                mCacheUtil.cacheObject(mCurrUrl, mArticle, JSON.toJSONString(mArticle));
+
+                editor.putBoolean(KEY_IS_RANDOM_URL, true);
+            }
+        }
+
+        String encode = AESEncryptor.encrypt(SecurityConfig.KEY, mCurrUrl);
+        editor.putString(KEY_CURR_URL, encode);
+        editor.putInt(KEY_ARTICLE_SIZE_INDEX, mArticleSizeIndex);
+        editor.putInt(KEY_BG_COLOR_INDEX, mBgColorIndex);
+        editor.apply();
+
+        mCacheUtil.flushCache();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mNetUtil.cancelAll(TAG);
+
+        mHandler.removeCallbacksAndMessages(null);
+    }
+
+    private void preprocess() {
+        ARTICLE_SIZES = getResources().getIntArray(R.array.article_size);
+        BG_COLORS = getResources().getIntArray(R.array.bg_articles);
+
+        mApi = new ArticleApi();
+        mCurrDate = getFormatDate();
+
+        mPreferences = getSharedPreferences(FILE_NAME, MODE_PRIVATE);
+        isRandomUrl = mPreferences.getBoolean(KEY_IS_RANDOM_URL, false);
+
+        String encode = mPreferences.getString(KEY_CURR_URL, null);
+        mCurrUrl = AESEncryptor.decrypt(
+                SecurityConfig.KEY,
+                encode
+        );
+
+        mArticleSizeIndex = mPreferences.getInt(KEY_ARTICLE_SIZE_INDEX, 1);
+        mBgColorIndex = mPreferences.getInt(KEY_BG_COLOR_INDEX, 0);
+
+        mNetUtil = new NetUtil(this);
+
+        mHandler = new Handler();
+
+        mCacheUtil = new CacheUtil(this);
+        mCacheUtil.openCache(
+                mCacheUtil.setCacheDir(CacheConfig.CACHE_DIR),
+                1,
+                1,
+                CacheConfig.MAX_SIZE
+        );
+    }
+
+    private void initView() {
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         // 解决在缓存数据后，打开app不显示标题的bug；
         // bug原因未知（能在parseJson方法中mToolbar.setTitle方法前读取到数据，
@@ -127,83 +191,6 @@ public class MainActivity extends AppCompatActivity
         mNavigationView = (NavigationView) findViewById(R.id.nav_view);
         mNavigationView.setNavigationItemSelectedListener(this);
 
-        initView();
-
-        loadData(mCurrUrl);
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        SharedPreferences.Editor editor = mPreferences.edit();
-
-        if (mArticle != null) {
-            if (mCurrUrl.contains(ArticleApi.RANDOM)) {
-                mCacheUtil.cacheObject(mCurrUrl, mArticle, JSON.toJSONString(mArticle));
-
-                editor.putBoolean(KEY_IS_RANDOM_URL, true);
-            }
-        }
-
-//        Log.e("kelly", "save url:" + mCurrUrl);
-
-        String encode = AESEncryptor.encrypt(SecurityConfig.KEY, mCurrUrl);
-//        Log.e("kelly", "加密");
-//        Log.e("kelly", "密文：" + encode);
-//        Log.e("kelly", "原文：" + mCurrUrl);
-        editor.putString(KEY_CURR_URL, encode);
-        editor.putInt(KEY_ARTICLE_SIZE_INDEX, mArticleSizeIndex);
-        editor.putInt(KEY_BG_COLOR_INDEX, mBgColorIndex);
-        editor.apply();
-//        editor.commit();
-
-        mCacheUtil.flushCache();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        mQueue.cancelAll(TAG);
-
-        mHandler.removeCallbacksAndMessages(null);
-    }
-
-    private void preprocess() {
-        ARTICLE_SIZES = getResources().getIntArray(R.array.article_size);
-        BG_COLORS = getResources().getIntArray(R.array.bg_articles);
-
-        mApi = new ArticleApi();
-        mCurrDate = getFormatDate();
-
-        mPreferences = getSharedPreferences(FILE_NAME, MODE_PRIVATE);
-        isRandomUrl = mPreferences.getBoolean(KEY_IS_RANDOM_URL, false);
-
-        String encode = mPreferences.getString(KEY_CURR_URL, null);
-        mCurrUrl = AESEncryptor.decrypt(
-                SecurityConfig.KEY,
-                encode
-        );
-//        Log.e("kelly", "解密");
-//        Log.e("kelly", "密文：" + encode);
-//        Log.e("kelly", "原文：" + mCurrUrl);
-
-        mArticleSizeIndex = mPreferences.getInt(KEY_ARTICLE_SIZE_INDEX, 1);
-        mBgColorIndex = mPreferences.getInt(KEY_BG_COLOR_INDEX, 0);
-
-        mQueue = Volley.newRequestQueue(this);
-
-        mHandler = new Handler();
-
-        mCacheUtil = new CacheUtil(this);
-        mCacheUtil.openCache(
-                mCacheUtil.setCacheDir(CacheConfig.CACHE_DIR),
-                1,
-                1,
-                CacheConfig.MAX_SIZE
-        );
-    }
-
-    private void initView() {
         mLayoutArticle = (ViewGroup) findViewById(R.id.layout_article);
         mLayoutArticle.setBackgroundColor(BG_COLORS[mBgColorIndex]);
 
@@ -216,6 +203,10 @@ public class MainActivity extends AppCompatActivity
         mTvWords = (TextView) findViewById(R.id.tv_words);
     }
 
+    /**
+     * 加载数据
+     * @param url url
+     */
     private void loadData(String url) {
         mProgressBar.setVisibility(View.VISIBLE);
 
@@ -223,67 +214,72 @@ public class MainActivity extends AppCompatActivity
             url = mApi.URL_OTHER + mCurrDate;
         }
 
-        if (isRandomUrl) {                              // 上一次退出应用时的内容是RANDOM_URL则主动加载
+        if (isRandomUrl) {           // 上一次退出应用时的内容是RANDOM_URL则主动加载
             isRandomUrl = false;
 
-            Article article = (Article) mCacheUtil.getCachedObject(url, Article.class);
-            if (article != null) {
-                mCurrUrl = url;
-
-                updateUI(article);
-            } else {
-                loadData(url, false);
-            }
+            loadDataWithCache(url, false);
         } else if (url.contains(ArticleApi.RANDOM)) {   // 被动加载RANDOM_URL
             loadData(url, false);
         } else {                                        // 被动加载OTHER_URL
-            Article article = (Article) mCacheUtil.getCachedObject(url, Article.class);
-            if (article != null) {
-                mCurrUrl = url;
-
-                updateUI(article);
-            } else {
-                loadData(url, true);
-            }
+            loadDataWithCache(url, true);
         }
     }
 
-    private void loadData(final String url, final boolean needCache) {
-        JsonObjectRequest jsr = new JsonObjectRequest(
-                Request.Method.GET,
-                url,
-                null,
-                new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject jsonObj) {
-                        Article article = parseJson(jsonObj);
-                        if (article == null) {
-                            mProgressBar.setVisibility(View.GONE);
-                            showError(R.string.net_busy);
-                        } else {
-                            mCurrUrl = url;
+    /**
+     * 加载数据。如果缓存中没有，从服务器中读取
+     * @param url url
+     * @param needCache 从服务器读取的数据是否需要缓存
+     */
+    private void loadDataWithCache(String url, boolean needCache) {
+        Article article = (Article) mCacheUtil.getCachedObject(url, Article.class);
+        if (article != null) {
+            mCurrUrl = url;
 
-                            if (needCache)
-                                mCacheUtil.cacheObject(url, article, JSON.toJSONString(article));
-
-                            updateUI(article);
-                        }
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError volleyError) {
-                        mProgressBar.setVisibility(View.GONE);
-
-                        mFab.setVisibility(mArticle == null ? View.VISIBLE : View.GONE);
-                        showError(R.string.net_busy);
-                    }
-                });
-        jsr.setTag(TAG);
-        mQueue.add(jsr);
+            updateUI(article);
+        } else {
+            loadData(url, needCache);
+        }
     }
 
-    private Article parseJson(JSONObject jsonObj) {
+    /**
+     * 从服务器读取数据，并缓存
+     * @param url url
+     * @param needCache 从服务器读取的数据是否需要缓存
+     */
+    private void loadData(final String url, final boolean needCache) {
+        mNetUtil.getData(NetUtil.VOLLEY_GET, TAG, url, new NetListener() {
+            @Override
+            public void onResponse(JSONObject jsonObj) {
+                Article article = parseJSONObject(jsonObj);
+                if (article == null) {
+                    mProgressBar.setVisibility(View.GONE);
+                    showError(R.string.net_busy);
+                } else {
+                    mCurrUrl = url;
+
+                    if (needCache)
+                        mCacheUtil.cacheObject(url, article, JSON.toJSONString(article));
+
+                    updateUI(article);
+                }
+            }
+
+            @Override
+            public void onErrorResponse(int type, Object obj) {
+                mProgressBar.setVisibility(View.GONE);
+
+                mFab.setVisibility(mArticle == null ? View.VISIBLE : View.GONE);
+                showError(R.string.net_busy);
+            }
+        });
+    }
+
+    /**
+     * 解析org.json.JSONObject对象
+     * @param jsonObj jsonObj
+     * @return Article对象 or null
+     */
+    private Article parseJSONObject(JSONObject jsonObj) {
         if (jsonObj == null) return null;
 
         Article article;
@@ -337,13 +333,6 @@ public class MainActivity extends AppCompatActivity
                 .setAction("Action", null).show();
     }
 
-    private String getFormatDate() {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
-        Calendar calendar = Calendar.getInstance();
-
-        return sdf.format(calendar.getTime());
-    }
-
     @Override
     public void onBackPressed() {
         if (mDrawer.isDrawerOpen(GravityCompat.START)) {
@@ -359,12 +348,10 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         DrawerLayout.DrawerListener listener = new DrawerLayout.DrawerListener() {
             @Override
-            public void onDrawerSlide(View drawerView, float slideOffset) {
-            }
+            public void onDrawerSlide(View drawerView, float slideOffset) {}
 
             @Override
-            public void onDrawerOpened(View drawerView) {
-            }
+            public void onDrawerOpened(View drawerView) {}
 
             @Override
             public void onDrawerClosed(View drawerView) {
@@ -378,14 +365,19 @@ public class MainActivity extends AppCompatActivity
                     }
 
                     String url = null;
-                    if (id == R.id.nav_random) {
-                        url = mApi.URL_RANDOM;
-                    } else if (id == R.id.nav_prev) {
-                        url = mApi.URL_OTHER + mArticle.prev;
-                    } else if (id == R.id.nav_today) {
-                        url = mApi.URL_OTHER + getFormatDate();
-                    } else if (id == R.id.nav_next) {
-                        url = mApi.URL_OTHER + mArticle.next;
+                    switch (id) {
+                        case R.id.nav_random:
+                            url = mApi.URL_RANDOM;
+                            break;
+                        case R.id.nav_prev:
+                            url = mApi.URL_OTHER + mArticle.prev;
+                            break;
+                        case R.id.nav_today:
+                            url = mApi.URL_OTHER + DateUtil.getFormatDate();
+                            break;
+                        case R.id.nav_next:
+                            url = mApi.URL_OTHER + mArticle.next;
+                            break;
                     }
                     loadData(url);
                 }

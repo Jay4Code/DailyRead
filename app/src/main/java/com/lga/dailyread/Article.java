@@ -37,6 +37,7 @@ public class Article {
                 ", digest='" + digest + '\'' +
                 ", content='" + content + '\'' +
                 ", wc=" + wc +
+                ", readPosition=" + readPosition +
                 '}';
     }
 }

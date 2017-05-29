@@ -1,4 +1,4 @@
-package com.lga.cache;
+package com.lga.util.cache;
 
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -15,6 +15,7 @@ import java.security.NoSuchAlgorithmException;
 
 /**
  * Created by Jay on 2017/5/26.
+ * 封装缓存管理库
  */
 
 public class CacheUtil {

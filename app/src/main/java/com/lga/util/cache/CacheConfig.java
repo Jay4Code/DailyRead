@@ -1,4 +1,4 @@
-package com.lga.cache;
+package com.lga.util.cache;
 
 /**
  * Created by Jay on 2017/5/27.

@@ -2,7 +2,6 @@ package com.lga.dailyread;
 
 /**
  * Created by Jay on 2017/5/26.
- * 每日一文API：https://github.com/jokermonn/-Api/blob/master/OneArticle.md
  */
 public class ArticleApi {
 

@@ -1,4 +1,4 @@
-package com.lga.security;
+package com.lga.util.security;
 
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
