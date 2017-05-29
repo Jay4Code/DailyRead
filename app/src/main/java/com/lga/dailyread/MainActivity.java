@@ -186,9 +186,6 @@ public class MainActivity extends AppCompatActivity
 //        Log.e("kelly", "解密");
 //        Log.e("kelly", "密文：" + encode);
 //        Log.e("kelly", "原文：" + mCurrUrl);
-        if (mCurrUrl == null) {
-            mCurrUrl = mApi.URL_OTHER + mCurrDate;
-        }
 
         mArticleSizeIndex = mPreferences.getInt(KEY_ARTICLE_SIZE_INDEX, 1);
         mBgColorIndex = mPreferences.getInt(KEY_BG_COLOR_INDEX, 0);
@@ -220,25 +217,31 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void loadData(String url) {
-//        Log.e("kelly", "url:" + url);
-
         mProgressBar.setVisibility(View.VISIBLE);
+
+        if (url == null) {
+            url = mApi.URL_OTHER + mCurrDate;
+        }
 
         if (isRandomUrl) {                              // 上一次退出应用时的内容是RANDOM_URL则主动加载
             isRandomUrl = false;
 
-            mArticle = (Article) mCacheUtil.getCachedObject(url, Article.class);
-            if (mArticle != null) {
-                updateUI(mArticle);
+            Article article = (Article) mCacheUtil.getCachedObject(url, Article.class);
+            if (article != null) {
+                mCurrUrl = url;
+
+                updateUI(article);
             } else {
                 loadData(url, false);
             }
         } else if (url.contains(ArticleApi.RANDOM)) {   // 被动加载RANDOM_URL
             loadData(url, false);
         } else {                                        // 被动加载OTHER_URL
-            mArticle = (Article) mCacheUtil.getCachedObject(url, Article.class);
-            if (mArticle != null) {
-                updateUI(mArticle);
+            Article article = (Article) mCacheUtil.getCachedObject(url, Article.class);
+            if (article != null) {
+                mCurrUrl = url;
+
+                updateUI(article);
             } else {
                 loadData(url, true);
             }
@@ -253,15 +256,17 @@ public class MainActivity extends AppCompatActivity
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject jsonObj) {
-                        mArticle = parseJson(jsonObj);
-                        if (mArticle == null) {
+                        Article article = parseJson(jsonObj);
+                        if (article == null) {
                             mProgressBar.setVisibility(View.GONE);
                             showError(R.string.net_busy);
                         } else {
-                            if (needCache)
-                                mCacheUtil.cacheObject(url, mArticle, JSON.toJSONString(mArticle));
+                            mCurrUrl = url;
 
-                            updateUI(mArticle);
+                            if (needCache)
+                                mCacheUtil.cacheObject(url, article, JSON.toJSONString(article));
+
+                            updateUI(article);
                         }
                     }
                 },
@@ -270,10 +275,7 @@ public class MainActivity extends AppCompatActivity
                     public void onErrorResponse(VolleyError volleyError) {
                         mProgressBar.setVisibility(View.GONE);
 
-                        if (mArticle == null) {
-                            mFab.setVisibility(View.VISIBLE);
-                        }
-
+                        mFab.setVisibility(mArticle == null ? View.VISIBLE : View.GONE);
                         showError(R.string.net_busy);
                     }
                 });
@@ -282,6 +284,8 @@ public class MainActivity extends AppCompatActivity
     }
 
     private Article parseJson(JSONObject jsonObj) {
+        if (jsonObj == null) return null;
+
         Article article;
         try {
             article = new Article();
@@ -297,7 +301,6 @@ public class MainActivity extends AppCompatActivity
             article.prev = data.getString(mApi.PREV);
             article.next = data.getString(mApi.NEXT);
 
-            updateUI(article);
         } catch (JSONException e) {
             e.printStackTrace();
             article = null;
@@ -306,6 +309,8 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void updateUI(Article article) {
+        mArticle = article;
+
         if (mCurrDate == null) {
             mCurrDate = article.curr;
         }
@@ -372,16 +377,17 @@ public class MainActivity extends AppCompatActivity
                         return;
                     }
 
+                    String url = null;
                     if (id == R.id.nav_random) {
-                        mCurrUrl = mApi.URL_RANDOM;
+                        url = mApi.URL_RANDOM;
                     } else if (id == R.id.nav_prev) {
-                        mCurrUrl = mApi.URL_OTHER + mArticle.prev;
+                        url = mApi.URL_OTHER + mArticle.prev;
                     } else if (id == R.id.nav_today) {
-                        mCurrUrl = mApi.URL_OTHER + getFormatDate();
+                        url = mApi.URL_OTHER + getFormatDate();
                     } else if (id == R.id.nav_next) {
-                        mCurrUrl = mApi.URL_OTHER + mArticle.next;
+                        url = mApi.URL_OTHER + mArticle.next;
                     }
-                    loadData(mCurrUrl);
+                    loadData(url);
                 }
                 mDrawer.removeDrawerListener(this);
             }
