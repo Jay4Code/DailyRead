@@ -36,7 +36,6 @@ import com.lga.util.net.NetUtil;
 import com.lga.util.security.AESEncryptor;
 import com.lga.util.security.SecurityConfig;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import static com.lga.util.date.DateUtil.getFormatDate;
@@ -250,7 +249,12 @@ public class MainActivity extends AppCompatActivity
         mNetUtil.getData(NetUtil.VOLLEY_GET, TAG, url, new NetListener() {
             @Override
             public void onResponse(JSONObject jsonObj) {
-                Article article = parseJSONObject(jsonObj);
+                if(jsonObj == null) {
+                    onErrorResponse(0, null);
+                    return;
+                }
+
+                Article article = JSON.parseObject(jsonObj.toString(), Article.class);
                 if (article == null) {
                     mProgressBar.setVisibility(View.GONE);
                     showError(R.string.net_busy);
@@ -274,43 +278,13 @@ public class MainActivity extends AppCompatActivity
         });
     }
 
-    /**
-     * 解析org.json.JSONObject对象
-     * @param jsonObj jsonObj
-     * @return Article对象 or null
-     */
-    private Article parseJSONObject(JSONObject jsonObj) {
-        if (jsonObj == null) return null;
-
-        Article article;
-        try {
-            article = new Article();
-            JSONObject dataRoot = jsonObj.getJSONObject(mApi.DATA);
-            article.author = dataRoot.getString(mApi.AUTHOR);
-            article.title = dataRoot.getString(mApi.TITLE);
-            article.digest = dataRoot.getString(mApi.DIGEST);
-            article.content = dataRoot.getString(mApi.CONTENT);
-            article.wc = dataRoot.getInt(mApi.WC);
-
-            JSONObject data = dataRoot.getJSONObject(mApi.DATE);
-            article.curr = data.getString(mApi.CURR);
-            article.prev = data.getString(mApi.PREV);
-            article.next = data.getString(mApi.NEXT);
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-            article = null;
-        }
-        return article;
-    }
-
     private void updateUI(Article article) {
         mArticle = article;
 
         if (mCurrDate == null) {
-            mCurrDate = article.curr;
+            mCurrDate = article.getCurr();
         }
-        if (mCurrDate.compareTo(article.curr) > 0) {
+        if (mCurrDate.compareTo(article.getCurr()) > 0) {
             mNavigationView.getMenu().getItem(3).setEnabled(true);
             mNavigationView.getMenu().getItem(4).setEnabled(true);
         } else {
@@ -318,12 +292,12 @@ public class MainActivity extends AppCompatActivity
             mNavigationView.getMenu().getItem(4).setEnabled(false);
         }
 
-        mScrollView.scrollTo(article.readPosition, 0);
+        mScrollView.scrollTo(article.getReadPosition(), 0);
 
-        mToolbar.setTitle(article.title);
-        mTvAuthor.setText(article.author);
+        mToolbar.setTitle(article.getTitle());
+        mTvAuthor.setText(article.getAuthro());
         mTvContent.setText(article.getFormatedContent());
-        mTvWords.setText(getString(R.string.words, article.wc));
+        mTvWords.setText(getString(R.string.words, article.getWc()));
 
         mProgressBar.setVisibility(View.GONE);
     }
@@ -370,13 +344,13 @@ public class MainActivity extends AppCompatActivity
                             url = mApi.URL_RANDOM;
                             break;
                         case R.id.nav_prev:
-                            url = mApi.URL_OTHER + mArticle.prev;
+                            url = mApi.URL_OTHER + mArticle.getPrev();
                             break;
                         case R.id.nav_today:
                             url = mApi.URL_OTHER + DateUtil.getFormatDate();
                             break;
                         case R.id.nav_next:
-                            url = mApi.URL_OTHER + mArticle.next;
+                            url = mApi.URL_OTHER + mArticle.getNext();
                             break;
                     }
                     loadData(url);
