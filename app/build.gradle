@@ -36,4 +36,6 @@ dependencies {
     compile 'de.hdodenhof:circleimageview:2.1.0'
     compile 'com.jakewharton:disklrucache:2.0.2'
     compile 'com.alibaba:fastjson:1.2.32'
+    compile 'com.jakewharton:butterknife:8.6.0'
+    compile 'com.jakewharton:butterknife-compiler:8.6.0'
 }

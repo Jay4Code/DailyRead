@@ -38,6 +38,10 @@ import com.lga.util.security.SecurityConfig;
 
 import org.json.JSONObject;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+
 import static com.lga.util.date.DateUtil.getFormatDate;
 
 public class MainActivity extends AppCompatActivity
@@ -66,16 +70,26 @@ public class MainActivity extends AppCompatActivity
 
     private NetUtil mNetUtil;
 
-    private ViewGroup mLayoutArticle;
-    private NavigationView mNavigationView;
-    private ProgressBar mProgressBar;
-    private Toolbar mToolbar;
-    private FloatingActionButton mFab;
-    private DrawerLayout mDrawer;
-    private ScrollView mScrollView;
-    private TextView mTvAuthor;
-    private TextView mTvContent;
-    private TextView mTvWords;
+    @BindView(R.id.layout_article)
+    ViewGroup mLayoutArticle;
+    @BindView(R.id.nav_view)
+    NavigationView mNavigationView;
+    @BindView(R.id.progressBar)
+    ProgressBar mProgressBar;
+    @BindView(R.id.toolbar)
+    Toolbar mToolbar;
+    @BindView(R.id.fab)
+    FloatingActionButton mFab;
+    @BindView(R.id.drawer_layout)
+    DrawerLayout mDrawer;
+    @BindView(R.id.scrollView)
+    ScrollView mScrollView;
+    @BindView(R.id.tv_author)
+    TextView mTvAuthor;
+    @BindView(R.id.tv_content)
+    TextView mTvContent;
+    @BindView(R.id.tv_words)
+    TextView mTvWords;
     private RadioGroup mRgSize;
     private RadioGroup mRgBg;
     private Switch mSwitcher;
@@ -133,6 +147,8 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void preprocess() {
+        ButterKnife.bind(this);
+
         ARTICLE_SIZES = getResources().getIntArray(R.array.article_size);
         BG_COLORS = getResources().getIntArray(R.array.bg_articles);
 
@@ -165,41 +181,22 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void initView() {
-        mToolbar = (Toolbar) findViewById(R.id.toolbar);
         // 解决在缓存数据后，打开app不显示标题的bug；
         // bug原因未知（能在parseJson方法中mToolbar.setTitle方法前读取到数据，
         // mToolbar.setTitle方法后通过mToolbar.getTitle方法也能取得数据）
         mToolbar.setTitle("");
         setSupportActionBar(mToolbar);
 
-        mFab = (FloatingActionButton) findViewById(R.id.fab);
-        mFab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mFab.setVisibility(View.GONE);
-                loadData(mCurrUrl);
-            }
-        });
-
-        mDrawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, mDrawer, mToolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         mDrawer.addDrawerListener(toggle);
         toggle.syncState();
 
-        mNavigationView = (NavigationView) findViewById(R.id.nav_view);
         mNavigationView.setNavigationItemSelectedListener(this);
 
-        mLayoutArticle = (ViewGroup) findViewById(R.id.layout_article);
         mLayoutArticle.setBackgroundColor(BG_COLORS[mBgColorIndex]);
 
-        mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
-
-        mScrollView = (ScrollView) findViewById(R.id.scrollView);
-        mTvAuthor = (TextView) findViewById(R.id.tv_author);
-        mTvContent = (TextView) findViewById(R.id.tv_content);
         mTvContent.setTextSize(ARTICLE_SIZES[mArticleSizeIndex]);
-        mTvWords = (TextView) findViewById(R.id.tv_words);
     }
 
     /**
@@ -373,14 +370,14 @@ public class MainActivity extends AppCompatActivity
 
         View view = LayoutInflater.from(this).inflate(R.layout.view_dialog, null);
         // init view
-        mRgSize = (RadioGroup) view.findViewById(R.id.rg_size);
+        mRgSize = ButterKnife.findById(view, R.id.rg_size);
         ((RadioButton) mRgSize.getChildAt(mArticleSizeIndex)).setChecked(true);
         mRgSize.setOnCheckedChangeListener(this);
-        mRgBg = (RadioGroup) view.findViewById(R.id.rg_bg);
+        mRgBg = ButterKnife.findById(view, R.id.rg_bg);
         // mBgColorIndex * 2，是因为中间还夹了一个Space
         ((RadioButton) mRgBg.getChildAt(mBgColorIndex * 2)).setChecked(true);
         mRgBg.setOnCheckedChangeListener(this);
-        mSwitcher = (Switch) view.findViewById(R.id.switcher);
+        mSwitcher = ButterKnife.findById(view, R.id.switcher);
         mSwitcher.setOnCheckedChangeListener(this);
 
         dialog.setContentView(view);
@@ -389,6 +386,12 @@ public class MainActivity extends AppCompatActivity
         view.setLayoutParams(params);
         dialog.getWindow().setGravity(Gravity.BOTTOM);
         dialog.show();
+    }
+
+    @OnClick(R.id.fab)
+    public void onClick(View v) {
+        mFab.setVisibility(View.GONE);
+        loadData(mCurrUrl);
     }
 
     @Override
