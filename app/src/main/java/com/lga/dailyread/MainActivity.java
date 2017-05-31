@@ -36,11 +36,14 @@ import com.lga.util.net.NetUtil;
 import com.lga.util.security.AESEncryptor;
 import com.lga.util.security.SecurityConfig;
 
-import org.json.JSONObject;
+import java.io.IOException;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Response;
 
 import static com.lga.util.date.DateUtil.getFormatDate;
 
@@ -141,7 +144,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        mNetUtil.cancelAll(TAG);
+        mNetUtil.cancel();
 
         mHandler.removeCallbacksAndMessages(null);
     }
@@ -167,7 +170,7 @@ public class MainActivity extends AppCompatActivity
         mArticleSizeIndex = mPreferences.getInt(KEY_ARTICLE_SIZE_INDEX, 1);
         mBgColorIndex = mPreferences.getInt(KEY_BG_COLOR_INDEX, 0);
 
-        mNetUtil = new NetUtil(this);
+        mNetUtil = new NetUtil(mApi.BASE_URL);
 
         mHandler = new Handler();
 
@@ -243,15 +246,20 @@ public class MainActivity extends AppCompatActivity
      * @param needCache 从服务器读取的数据是否需要缓存
      */
     private void loadData(final String url, final boolean needCache) {
-        mNetUtil.getData(NetUtil.VOLLEY_GET, TAG, url, new NetListener() {
+        // retrofit2
+        mNetUtil.getData(url, new NetListener.RetrofitListener() {
             @Override
-            public void onResponse(JSONObject jsonObj) {
-                if(jsonObj == null) {
-                    onErrorResponse(0, null);
-                    return;
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if(response == null) {
+                    onFailure(null, null);
                 }
 
-                Article article = JSON.parseObject(jsonObj.toString(), Article.class);
+                Article article = null;
+                try {
+                    article = JSON.parseObject(response.body().string(), Article.class);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
                 if (article == null) {
                     mProgressBar.setVisibility(View.GONE);
                     showError(R.string.net_busy);
@@ -266,11 +274,15 @@ public class MainActivity extends AppCompatActivity
             }
 
             @Override
-            public void onErrorResponse(int type, Object obj) {
-                mProgressBar.setVisibility(View.GONE);
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+//                t.printStackTrace();
 
-                mFab.setVisibility(mArticle == null ? View.VISIBLE : View.GONE);
-                showError(R.string.net_busy);
+                if(!call.isCanceled()) {
+                    mProgressBar.setVisibility(View.GONE);
+
+                    mFab.setVisibility(mArticle == null ? View.VISIBLE : View.GONE);
+                    showError(R.string.net_busy);
+                }
             }
         });
     }

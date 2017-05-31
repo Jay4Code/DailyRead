@@ -73,6 +73,10 @@
 # fastjson
 -dontwarn com.alibaba.fastjson.**
 
+# okhttp, retrofit
+-dontwarn okio.**
+-dontwarn javax.annotation.**
+
 -ignorewarning      #忽略警告
 
 ###############记录生成的日志数据,gradle build时在本项目根目录输出
