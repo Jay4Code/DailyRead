@@ -28,6 +28,7 @@ import android.widget.Switch;
 import android.widget.TextView;
 
 import com.alibaba.fastjson.JSON;
+import com.lga.dailyread.bean.Article;
 import com.lga.util.cache.CacheConfig;
 import com.lga.util.cache.CacheUtil;
 import com.lga.util.date.DateUtil;

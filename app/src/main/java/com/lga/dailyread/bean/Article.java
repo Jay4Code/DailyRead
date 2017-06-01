@@ -1,60 +1,9 @@
-package com.lga.dailyread;
-
-import android.support.annotation.Keep;
+package com.lga.dailyread.bean;
 
 /**
  * Created by Jay on 2017/5/24.
  */
-@Keep
 public class Article {
-
-    @Keep
-    public class Data {
-
-        @Keep
-        public class Date {
-
-            public String curr;
-            public String prev;
-            public String next;
-
-            public Date() {}
-
-            @Override
-            public String toString() {
-                return "Date{" +
-                        "curr='" + curr + '\'' +
-                        ", prev='" + prev + '\'' +
-                        ", next='" + next + '\'' +
-                        '}';
-            }
-        }
-
-        public Date date;
-        public String author;
-        public String title;
-        public String digest;
-        public String content;
-        public int wc;
-        public int readPosition;
-
-        public Data() {
-            date = new Date();
-        }
-
-        @Override
-        public String toString() {
-            return "Data{" +
-                    "date=" + date +
-                    ", author='" + author + '\'' +
-                    ", title='" + title + '\'' +
-                    ", digest='" + digest + '\'' +
-                    ", content='" + content + '\'' +
-                    ", wc=" + wc +
-                    ", readPosition=" + readPosition +
-                    '}';
-        }
-    }
 
     public Data data;
 
