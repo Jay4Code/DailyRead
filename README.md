@@ -9,4 +9,9 @@ app截图
 ----------
 
 v1.0.3
-&emsp;&emsp;通过Volley获取JSON数据，fastjson转换数据，DiskLruCache实现内存与磁盘的数据缓存。
+- 通过Volley获取JSON数据，fastjson转换数据，DiskLruCache实现内存与磁盘的数据缓存
+
+v1.0.4
+- 修复某些情况下无法读取缓存数据的问题
+- 调整JSONObject，JSON，Object间的转换
+- 添加混淆
