@@ -1,13 +1,17 @@
 package com.lga.dailyread;
 
+import android.support.annotation.Keep;
+
 /**
  * Created by Jay on 2017/5/24.
  */
-
+@Keep
 public class Article {
 
+    @Keep
     public class Data {
 
+        @Keep
         public class Date {
 
             public String curr;

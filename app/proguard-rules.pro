@@ -24,67 +24,53 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 
--optimizationpasses 5          # 指定代码的压缩级别
--dontusemixedcaseclassnames   # 是否使用大小写混合
--dontpreverify           # 混淆时是否做预校验
--verbose                # 混淆时是否记录日志
--dontskipnonpubliclibraryclasses # 不去忽略非公共的库类
--dontoptimize           #优化  不优化输入的类文件
+# 混淆算法
+-optimizations !code/simplification/arithmetic,!code/simplification/cast,!field/*,!class/merging/* # 不对算术和类型转化操作符优化，不改变类层次
 
--optimizations !code/simplification/arithmetic,!field/*,!class/merging/*  # 混淆时所采用的算法
+# 压缩
+-optimizationpasses 5 # 指定压缩级别
 
--keepattributes Annotation      #保护注解
+# 优化
+-dontoptimize # 不优化输入的类文件
+-allowaccessmodification # 优化时允许访问并修改有修饰符的类和类的成员
 
--keep public class * extends android.app.Activity      # 保持哪些类不被混淆
--keep public class * extends android.app.Activity      # 保持哪些类不被混淆
--keep public class * extends android.app.Application   # 保持哪些类不被混淆
--keep public class * extends android.app.Service       # 保持哪些类不被混淆
--keep public class * extends android.content.BroadcastReceiver  # 保持哪些类不被混淆
--keep public class * extends android.content.ContentProvider    # 保持哪些类不被混淆
--keep public class * extends android.app.backup.BackupAgentHelper # 保持哪些类不被混淆
--keep public class * extends android.preference.Preference        # 保持哪些类不被混淆
--keep public class com.android.vending.licensing.ILicensingService    # 保持哪些类不被混淆
--keep public class * extends android.support.v4.app.Fragment    #如果有引用v4包可以添加
+#Bean类
+#-keep public class com.lga.dailyread.bean.**{*;} #  保持Bean类
+-keepclassmembers class com.lga.dailyread.bean.** { *; } # 保持Bean类，但混淆类名
 
--keepclasseswithmembernames class * {  # 保持 native 方法不被混淆
-    native <methods>;
-}
--keepclasseswithmembers class * {   # 保持自定义控件类不被混淆
-    public <init>(android.content.Context, android.util.AttributeSet);
-}
--keepclasseswithmembers class * {# 保持自定义控件类不被混淆
-    public <init>(android.content.Context, android.util.AttributeSet, int);
-}
--keepclassmembers class * extends android.app.Activity { # 保持自定义控件类不被混淆
-    public void *(android.view.View);
-}
--keepclassmembers enum * {     # 保持枚举 enum 类不被混淆
-    public static **[] values();
-    public static ** valueOf(java.lang.String);
-}
--keep class * implements android.os.Parcelable { # 保持 Parcelable 不被混淆
-    public static final android.os.Parcelable$Creator *;
-}
-
-#-keepnames class * implements java.io.Serializable     #保持 Serializable 不被混淆
-
--keepclassmembers class *.R$ {    public static <fields>;}      #不混淆资源类
-
+# 引用库--------------
 # fastjson
 -dontwarn com.alibaba.fastjson.**
-
--ignorewarning      #忽略警告
-
-###############记录生成的日志数据,gradle build时在本项目根目录输出
-#apk 包内所有 class 的内部结构
-#-dump class_files.txt
-#未混淆的类和成员
--printseeds seeds.txt
-#列出从 apk 中删除的代码
-#-printusage unused.txt
-#混淆前后的映射
-#-printmapping mapping.txt
-#如果引用了v4或者v7包
--dontwarn android.support.**
-#禁止优化泛型
+-keep class com.alibaba.fastjson.** { *; }
 -keepattributes Signature
+-keepattributes *Annotation*
+
+# com.android.support:design
+-dontwarn android.support.design.**
+-keep class android.support.design.** { *; }
+-keep interface android.support.design.** { *; }
+-keep public class android.support.design.R$* { *; }
+
+# com.android.support:appcompat-v7
+-keep public class android.support.v7.widget.** { *; }
+-keep public class android.support.v7.internal.widget.** { *; }
+-keep public class android.support.v7.internal.view.menu.** { *; }
+
+-keep public class * extends android.support.v4.view.ActionProvider {
+    public <init>(android.content.Context);
+}
+# end--------------
+
+# 测试
+# 保持测试相关的代码
+-dontnote junit.framework.**
+-dontnote junit.runner.**
+-dontwarn android.test.**
+-dontwarn android.support.test.**
+-dontwarn org.junit.**
+
+# 混淆
+-dontskipnonpubliclibraryclassmembers # 不跳过非公共的库的类成员
+-overloadaggressively # 混淆时应用侵入式重载
+-useuniqueclassmembernames # 把混淆类中的方法名也混淆
+-renamesourcefileattribute SourceFile # 将文件来源重命名为“SourceFile”字符串
