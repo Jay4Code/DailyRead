@@ -1,6 +1,7 @@
 package com.lga.util.net;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -8,17 +9,23 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
-import com.lga.dailyread.ArticleApi;
+import com.lga.dailyread.bean.Article;
 
 import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
+import io.reactivex.Observable;
+import io.reactivex.Observer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.annotations.NonNull;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 import okhttp3.OkHttpClient;
-import okhttp3.ResponseBody;
-import retrofit2.Call;
 import retrofit2.Retrofit;
+import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 /**
  * Created by Jay on 2017/5/29.
@@ -32,6 +39,7 @@ public class NetUtil {
 
     /**
      * volley专用
+     *
      * @param context
      */
     public NetUtil(Context context) {
@@ -102,37 +110,45 @@ public class NetUtil {
 
     // ------------retrofit2------------
     private ArticleService mService;
-    private retrofit2.Call<ResponseBody> mCall;
+    private Observable<Article> mObservable;
 
     public NetUtil(String baseUrl) {
         mService = new Retrofit.Builder()
                 .baseUrl(baseUrl)
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                .addConverterFactory(GsonConverterFactory.create())
                 .build()
                 .create(ArticleService.class);
+
     }
 
-    public void getData(String url, final NetListener.RetrofitListener listener) {
-        if (url.contains(ArticleApi.RANDOM)) {
-            mCall = mService.getRandomArticle();
-        } else {
-            mCall = mService.getArticle(url.substring(url.length() - 8, url.length()));
-        }
+    public void getData(String category, String dev, String date, final NetListener.RetrofitListener listener) {
+        mObservable = mService.getArticle(category, dev, date);
+        mObservable.subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<Article>() {
+                    @Override
+                    public void onSubscribe(@NonNull Disposable d) {
+                    }
 
-        mCall.enqueue(new retrofit2.Callback<ResponseBody>() {
-            @Override
-            public void onResponse(retrofit2.Call<ResponseBody> call, retrofit2.Response<ResponseBody> response) {
-                listener.onResponse(call, response);
-            }
+                    @Override
+                    public void onNext(@NonNull Article article) {
+                        listener.onResponse(article);
+                    }
 
-            @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
-                listener.onFailure(call, t);
-            }
-        });
+                    @Override
+                    public void onError(@NonNull Throwable e) {
+                        listener.onFailure(e);
+                    }
+
+                    @Override
+                    public void onComplete() {
+                    }
+                });
     }
 
     public void cancel() {
-        if (mCall != null) mCall.cancel();
+        if (mObservable != null) mObservable.unsubscribeOn(Schedulers.io());
     }
 
     // ----------------------

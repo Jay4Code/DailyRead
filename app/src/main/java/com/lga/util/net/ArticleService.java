@@ -1,8 +1,10 @@
 package com.lga.util.net;
 
-import okhttp3.ResponseBody;
-import retrofit2.Call;
+import com.lga.dailyread.bean.Article;
+
+import io.reactivex.Observable;
 import retrofit2.http.GET;
+import retrofit2.http.Path;
 import retrofit2.http.Query;
 
 /**
@@ -11,9 +13,6 @@ import retrofit2.http.Query;
 
 public interface ArticleService {
 
-    @GET("day?dev=1&date=")
-    Call<ResponseBody> getArticle(@Query("date") String date);
-
-    @GET("random?dev=1")
-    Call<ResponseBody> getRandomArticle();
+    @GET("{category}")
+    Observable<Article> getArticle(@Path("category") String category, @Query("dev") String dev, @Query("date") String date);
 }

@@ -5,7 +5,7 @@ import android.content.pm.PackageManager;
 import android.os.Environment;
 import android.util.LruCache;
 
-import com.alibaba.fastjson.JSON;
+import com.google.gson.Gson;
 import com.jakewharton.disklrucache.DiskLruCache;
 
 import java.io.File;
@@ -21,11 +21,13 @@ import java.security.NoSuchAlgorithmException;
 public class CacheUtil {
 
     private Context mContext;
+    private Gson mGson;
     private DiskLruCache mDiskLruCache;
     private LruCache<String, Object> mMemoryCache;
 
     public CacheUtil(Context context) {
         mContext = context;
+        mGson = new Gson();
     }
 
     /**
@@ -126,7 +128,7 @@ public class CacheUtil {
             try {
                 DiskLruCache.Snapshot snapshot = mDiskLruCache.get(cacheKey);
                 if (snapshot != null) {
-                    object = JSON.parseObject(snapshot.getString(0), clss);
+                    object = mGson.fromJson(snapshot.getString(0), clss);
                 }
             } catch (IOException | NullPointerException e) {
                 e.printStackTrace();

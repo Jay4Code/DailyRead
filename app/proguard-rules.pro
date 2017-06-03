@@ -59,6 +59,36 @@
 -keep public class * extends android.support.v4.view.ActionProvider {
     public <init>(android.content.Context);
 }
+
+# butterknife
+-ignorewarnings
+
+-keep public class * implements butterknife.Unbinder { public <init>(...); }
+-keep class butterknife.*
+-keepclasseswithmembernames class * { @butterknife.* <methods>; }
+-keepclasseswithmembernames class * { @butterknife.* <fields>; }
+
+# rxjava
+-dontwarn rx.**
+-keepclassmembers class rx.internal.util.unsafe.*ArrayQueue*Field* {
+   long producerIndex;
+   long consumerIndex;
+}
+-keepclassmembers class rx.internal.util.unsafe.BaseLinkedQueueProducerNodeRef {
+    rx.internal.util.atomic.LinkedQueueNode producerNode;
+}
+-keepclassmembers class rx.internal.util.unsafe.BaseLinkedQueueConsumerNodeRef {
+    rx.internal.util.atomic.LinkedQueueNode consumerNode;
+}
+-dontnote rx.internal.util.PlatformDependent
+
+# retrofit2
+-dontwarn retrofit2.**
+-keep class retrofit2.** { *; }
+-keepattributes Exceptions
+-keepclasseswithmembers class * {
+    @retrofit2.http.* <methods>;
+}
 # end--------------
 
 # 测试
@@ -73,4 +103,4 @@
 -dontskipnonpubliclibraryclassmembers # 不跳过非公共的库的类成员
 -overloadaggressively # 混淆时应用侵入式重载
 -useuniqueclassmembernames # 把混淆类中的方法名也混淆
--renamesourcefileattribute SourceFile # 将文件来源重命名为“SourceFile”字符串
+-renamesourcefileattribute SourceFile # 将文件来源重命名为“SourceFile”字符串# Add project specific ProGuard rules here.

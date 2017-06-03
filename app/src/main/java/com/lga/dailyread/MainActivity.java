@@ -27,7 +27,7 @@ import android.widget.ScrollView;
 import android.widget.Switch;
 import android.widget.TextView;
 
-import com.alibaba.fastjson.JSON;
+import com.google.gson.Gson;
 import com.lga.dailyread.bean.Article;
 import com.lga.util.cache.CacheConfig;
 import com.lga.util.cache.CacheUtil;
@@ -37,14 +37,9 @@ import com.lga.util.net.NetUtil;
 import com.lga.util.security.AESEncryptor;
 import com.lga.util.security.SecurityConfig;
 
-import java.io.IOException;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import okhttp3.ResponseBody;
-import retrofit2.Call;
-import retrofit2.Response;
 
 import static com.lga.util.date.DateUtil.getFormatDate;
 
@@ -62,6 +57,7 @@ public class MainActivity extends AppCompatActivity
     private int[] BG_COLORS;
 
     private ArticleApi mApi;
+    private Gson mGson;
 
     private SharedPreferences mPreferences;
     private String mCurrUrl;
@@ -127,7 +123,8 @@ public class MainActivity extends AppCompatActivity
         SharedPreferences.Editor editor = mPreferences.edit();
         if (mArticle != null) {
             if (mCurrUrl.contains(ArticleApi.RANDOM)) {
-                mCacheUtil.cacheObject(mCurrUrl, mArticle, JSON.toJSONString(mArticle));
+                mCacheUtil.cacheObject(mCurrUrl, mArticle, mGson.toJson(mArticle));
+
 
                 editor.putBoolean(KEY_IS_RANDOM_URL, true);
             }
@@ -158,6 +155,8 @@ public class MainActivity extends AppCompatActivity
 
         mApi = new ArticleApi();
         mCurrDate = getFormatDate();
+
+        mGson = new Gson();
 
         mPreferences = getSharedPreferences(FILE_NAME, MODE_PRIVATE);
         isRandomUrl = mPreferences.getBoolean(KEY_IS_RANDOM_URL, false);
@@ -205,6 +204,7 @@ public class MainActivity extends AppCompatActivity
 
     /**
      * 加载数据
+     *
      * @param url url
      */
     private void loadData(String url) {
@@ -227,7 +227,8 @@ public class MainActivity extends AppCompatActivity
 
     /**
      * 加载数据。如果缓存中没有，从服务器中读取
-     * @param url url
+     *
+     * @param url       url
      * @param needCache 从服务器读取的数据是否需要缓存
      */
     private void loadDataWithCache(String url, boolean needCache) {
@@ -243,47 +244,38 @@ public class MainActivity extends AppCompatActivity
 
     /**
      * 从服务器读取数据，并缓存
-     * @param url url
+     *
+     * @param url       url
      * @param needCache 从服务器读取的数据是否需要缓存
      */
     private void loadData(final String url, final boolean needCache) {
         // retrofit2
-        mNetUtil.getData(url, new NetListener.RetrofitListener() {
+        String category = url.substring(url.lastIndexOf("/") + 1, url.indexOf("?"));
+        String dev = mApi.DEV;
+        String date = url.contains("date") ? url.substring(url.lastIndexOf("=") + 1) : null;
+        mNetUtil.getData(category, dev, date, new NetListener.RetrofitListener() {
             @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                if(response == null) {
-                    onFailure(null, null);
-                }
-
-                Article article = null;
-                try {
-                    article = JSON.parseObject(response.body().string(), Article.class);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+            public void onResponse(Article article) {
                 if (article == null) {
-                    mProgressBar.setVisibility(View.GONE);
-                    showError(R.string.net_busy);
+                    onFailure(null);
                 } else {
                     mCurrUrl = url;
 
                     if (needCache)
-                        mCacheUtil.cacheObject(url, article, JSON.toJSONString(article));
+                        mCacheUtil.cacheObject(url, article, mGson.toJson(article));
 
                     updateUI(article);
                 }
             }
 
             @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
-//                t.printStackTrace();
+            public void onFailure(Throwable e) {
+//                e.printStackTrace();
 
-                if(!call.isCanceled()) {
-                    mProgressBar.setVisibility(View.GONE);
+                mProgressBar.setVisibility(View.GONE);
 
-                    mFab.setVisibility(mArticle == null ? View.VISIBLE : View.GONE);
-                    showError(R.string.net_busy);
-                }
+                mFab.setVisibility(mArticle == null ? View.VISIBLE : View.GONE);
+                showError(R.string.net_busy);
             }
         });
     }
@@ -332,10 +324,12 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         DrawerLayout.DrawerListener listener = new DrawerLayout.DrawerListener() {
             @Override
-            public void onDrawerSlide(View drawerView, float slideOffset) {}
+            public void onDrawerSlide(View drawerView, float slideOffset) {
+            }
 
             @Override
-            public void onDrawerOpened(View drawerView) {}
+            public void onDrawerOpened(View drawerView) {
+            }
 
             @Override
             public void onDrawerClosed(View drawerView) {

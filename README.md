@@ -8,5 +8,9 @@ app截图
 
 ----------
 
-v1.0.3
-&emsp;&emsp;通过Volley获取JSON数据，fastjson转换数据，DiskLruCache实现内存与磁盘的数据缓存。
+master分支的v1.0.3版本主要内容
+> 通过Volley获取JSON数据，fastjson转换数据，DiskLruCache实现内存与磁盘的数据缓存。
+
+**从master分支的v1.0.3版本切出本分支**，master主分支的bug会同步到本分支。
+v1.0.4版本：
+> 通过retrofit2获取JSON数据，gson转换数据，DiskLruCache实现内存与磁盘的数据缓存，rxjava2+rxandroid实现响应式编程（调度线程）。

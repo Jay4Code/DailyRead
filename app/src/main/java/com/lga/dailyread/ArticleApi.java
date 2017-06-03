@@ -15,4 +15,5 @@ public class ArticleApi {
      * URL_RANDOM的标识，URL_RANDOM所指向的内容不能缓存（url不唯一）
      */
     public static final String RANDOM = "random";
+    public static final String DEV = "1";
 }
