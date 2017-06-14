@@ -44,6 +44,7 @@ import static com.lga.util.date.DateUtil.getFormatDate;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, RadioGroup.OnCheckedChangeListener, CompoundButton.OnCheckedChangeListener {
 
+    private static final long EXIT_INTERVAL = 2000L;
     private final String TAG = "MainActivity";
     private static final String FILE_NAME = "dailyread.xml";
     private static final String KEY_IS_RANDOM_URL = "is_random_url";
@@ -90,6 +91,8 @@ public class MainActivity extends AppCompatActivity
     private Handler mHandler;
 
     private CacheUtil mCacheUtil;
+
+    private long mFirstTime;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -258,7 +261,7 @@ public class MainActivity extends AppCompatActivity
                 Article article = JSON.parseObject(jsonObj.toString(), Article.class);
                 if (article == null) {
                     mProgressBar.setVisibility(View.GONE);
-                    showError(R.string.net_busy);
+                    showAlter(R.string.net_busy);
                 } else {
                     mCurrUrl = url;
 
@@ -274,7 +277,7 @@ public class MainActivity extends AppCompatActivity
                 mProgressBar.setVisibility(View.GONE);
 
                 mFab.setVisibility(mArticle == null ? View.VISIBLE : View.GONE);
-                showError(R.string.net_busy);
+                showAlter(R.string.net_busy);
             }
         });
     }
@@ -303,8 +306,8 @@ public class MainActivity extends AppCompatActivity
         mProgressBar.setVisibility(View.GONE);
     }
 
-    private void showError(int errorId) {
-        Snackbar.make(mLayoutArticle, getString(errorId), Snackbar.LENGTH_SHORT)
+    private void showAlter(int alterId) {
+        Snackbar.make(mLayoutArticle, getString(alterId), Snackbar.LENGTH_SHORT)
                 .setAction("Action", null).show();
     }
 
@@ -313,7 +316,19 @@ public class MainActivity extends AppCompatActivity
         if (mDrawer.isDrawerOpen(GravityCompat.START)) {
             mDrawer.closeDrawer(GravityCompat.START);
         } else {
-            super.onBackPressed();
+            if (System.currentTimeMillis() - mFirstTime > EXIT_INTERVAL) {
+                showAlter(R.string.exit);
+                mFirstTime = System.currentTimeMillis();
+            } else {
+                /*
+                // 返回桌面
+                Intent home = new Intent(Intent.ACTION_MAIN);
+                home.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                home.addCategory(Intent.CATEGORY_HOME);
+                startActivity(home);
+                */
+                super.onBackPressed();
+            }
         }
     }
 
@@ -335,7 +350,7 @@ public class MainActivity extends AppCompatActivity
                     showReadSettingsDialog();
                 } else {
                     if (mArticle == null) {
-                        showError(R.string.net_busy);
+                        showAlter(R.string.net_busy);
                         return;
                     }
 
