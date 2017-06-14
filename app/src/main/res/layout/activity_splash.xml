@@ -4,5 +4,5 @@
     android:id="@+id/root_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@mipmap/screen"
+    android:background="@drawable/screen"
     tools:context="com.lga.dailyread.SplashActivity" />

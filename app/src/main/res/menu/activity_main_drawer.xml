@@ -4,26 +4,26 @@
     <group android:checkableBehavior="single">
         <item
             android:id="@+id/nav_read_settings"
-            android:icon="@mipmap/ic_settings"
+            android:icon="@drawable/ic_settings"
             android:title="@string/read_settings" />
         <item
             android:id="@+id/nav_random"
-            android:icon="@mipmap/ic_random"
+            android:icon="@drawable/ic_random"
             android:title="@string/random" />
         <item
             android:id="@+id/nav_prev"
-            android:icon="@mipmap/ic_prev"
+            android:icon="@drawable/ic_prev"
             android:title="@string/prev" />
         <item
             android:id="@+id/nav_today"
             android:enabled="false"
-            android:icon="@mipmap/ic_today"
+            android:icon="@drawable/ic_today"
             android:title="@string/today" />
 
         <item
             android:id="@+id/nav_next"
             android:enabled="false"
-            android:icon="@mipmap/ic_next"
+            android:icon="@drawable/ic_next"
             android:title="@string/next" />
     </group>
 </menu>

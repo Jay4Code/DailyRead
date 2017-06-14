@@ -29,6 +29,6 @@
         android:layout_margin="@dimen/fab_margin"
         android:visibility="gone"
         app:backgroundTint="@color/light_white"
-        app:srcCompat="@mipmap/ic_refresh" />
+        app:srcCompat="@drawable/ic_refresh" />
 
 </android.support.design.widget.CoordinatorLayout>
