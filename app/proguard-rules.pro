@@ -59,6 +59,18 @@
 -keep public class * extends android.support.v4.view.ActionProvider {
     public <init>(android.content.Context);
 }
+
+# umeng
+-keepclassmembers class * {
+   public <init> (org.json.JSONObject);
+}
+-keep public class com.lga.dailyread.R$*{
+public static final int *;
+}
+-keepclassmembers enum * {
+   public static **[] values();
+   public static ** valueOf(java.lang.String);
+}
 # end--------------
 
 # 测试

@@ -21,17 +21,21 @@ android {
         debug{
         }
     }
-    /*
+
     // 多渠道
     productFlavors {
-        baidu {}
-        _91 {}
+        umeng {}
+        tecent {}
+        a91 {}
         wandoujia {}
+        baidu {}
+        a360 {}
+        uc {}
         xiaomi {}
 
     }
     productFlavors.all {
-        flavor -> flavor.manifestPlaceholders = [MTA_CHANNEL_VALUE: name]
+        flavor -> flavor.manifestPlaceholders = [UMENG_CHANNEL_VALUE: name]
     }
     applicationVariants.all { variant ->
         variant.outputs.each { output ->
@@ -43,13 +47,13 @@ android {
                 output.outputFile = new File(outputFile.parent, fileName)
             }
         }
-    }*/
+    }
 
 }
 
-/*def releaseTime() {
+def releaseTime() {
     return new Date().format("yyyy-MM-dd", TimeZone.getTimeZone("UTC"))
-}*/
+}
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
@@ -64,4 +68,6 @@ dependencies {
     compile 'de.hdodenhof:circleimageview:2.1.0'
     compile 'com.jakewharton:disklrucache:2.0.2'
     compile 'com.alibaba:fastjson:1.2.32'
+    compile 'com.umeng.analytics:analytics:6.1.1'
+    compile files('libs/utdid4all-1.0.4.jar')
 }

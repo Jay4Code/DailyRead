@@ -36,6 +36,7 @@ import com.lga.util.net.NetListener;
 import com.lga.util.net.NetUtil;
 import com.lga.util.security.AESEncryptor;
 import com.lga.util.security.SecurityConfig;
+import com.umeng.analytics.MobclickAgent;
 
 import org.json.JSONObject;
 
@@ -107,8 +108,16 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        MobclickAgent.onResume(this);
+    }
+
+    @Override
     protected void onPause() {
         super.onPause();
+        MobclickAgent.onPause(this);
+
         // save data
         SharedPreferences.Editor editor = mPreferences.edit();
         if (mArticle != null) {
