@@ -7,8 +7,8 @@ android {
         applicationId "com.lga.dailyread"
         minSdkVersion 14
         targetSdkVersion 25
-        versionCode 1
-        versionName "1.0.4"
+        versionCode 5
+        versionName "1.0.5"
 //        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -18,7 +18,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
 
-        debug{
+        debug {
         }
     }
 
@@ -64,10 +64,8 @@ dependencies {
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
     compile 'com.android.support:design:25.3.1'
     testCompile 'junit:junit:4.12'
-    compile files('libs/volley.jar')
     compile 'de.hdodenhof:circleimageview:2.1.0'
     compile 'com.jakewharton:disklrucache:2.0.2'
     compile 'com.alibaba:fastjson:1.2.32'
     compile 'com.umeng.analytics:analytics:6.1.1'
-    compile files('libs/utdid4all-1.0.4.jar')
 }

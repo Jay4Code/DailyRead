@@ -25,5 +25,9 @@
             android:enabled="false"
             android:icon="@drawable/ic_next"
             android:title="@string/next" />
+        <item
+            android:id="@+id/nav_state"
+            android:icon="@drawable/ic_state"
+            android:title="@string/state" />
     </group>
 </menu>

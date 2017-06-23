@@ -1,6 +1,7 @@
 package com.lga.dailyread;
 
 import android.app.Dialog;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -357,6 +358,8 @@ public class MainActivity extends AppCompatActivity
                 int id = item.getItemId();
                 if (id == R.id.nav_read_settings) {
                     showReadSettingsDialog();
+                } else if (id == R.id.nav_state) {
+                    startActivity(new Intent(MainActivity.this, StateActivity.class));
                 } else {
                     if (mArticle == null) {
                         showAlter(R.string.net_busy);

@@ -20,10 +20,13 @@
     <string name="random">随机</string>
     <string name="next">后一天</string>
     <string name="today">今日</string>
+    <string name="state">声明</string>
 
     <string name="net_busy">网络忙，请稍后</string>
     <string name="encrypt_error">加密异常</string>
     <string name="decrypt_error">解密异常</string>
 
     <string name="exit">再按一次退出程序</string>
+
+    <string name="state_content">\u3000\u3000App 所用 API 来自于互联网，仅用于个人开发。\n\u3000\u3000获取与共享之行为或有侵犯产品权益的嫌疑。如若侵犯了您的权益，请及时告知作者：\n\njiexiaochn@163.com\n\n作者将立即停止共享与使用。</string>
 </resources>
